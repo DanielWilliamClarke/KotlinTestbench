@@ -29,9 +29,7 @@ class ReactiveGreetingResource(
         return Uni.createFrom().item(name)
             .emitOn(Infrastructure.getDefaultWorkerPool()) // shift blocking work off IO thread
             .map { n -> service.greeting(n) } // sync transform
-            .onItem()
-            .delayIt()
-            .by(Duration.ofSeconds(1)) // simulate delay
+            .onItem().delayIt().by(Duration.ofSeconds(1)) // simulate delay
     }
 
     @GET
@@ -41,12 +39,9 @@ class ReactiveGreetingResource(
         return Uni.createFrom().item(name)
             .emitOn(Infrastructure.getDefaultWorkerPool()) // shift blocking work off IO thread
             .map { n -> service.greeting(n) } // sync transform
-            .onItem()
-            .delayIt().by(Duration.ofSeconds(2))
-            .ifNoItem().after(Duration.ofSeconds(1))
-            .fail()
-            .onFailure()
-            .recoverWithUni { _ ->
+            .onItem().delayIt().by(Duration.ofSeconds(2))
+            .ifNoItem().after(Duration.ofSeconds(1)).fail()
+            .onFailure().recoverWithUni { _ ->
                 val errorResponse = Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity(mapOf("error" to "Request timed out before completing"))

@@ -9,7 +9,7 @@ import org.acme.rest.Greeting
 import org.acme.rest.GreetingService
 import java.time.Duration
 
-@Path("/")
+@Path("/api")
 class ReactiveGreetingResource(
     private val service: GreetingService
 ) {

@@ -2,19 +2,12 @@ package org.acme
 
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.infrastructure.Infrastructure
-import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.acme.rest.Greeting
+import org.acme.rest.GreetingService
 import java.time.Duration
-
-@ApplicationScoped
-class GreetingService {
-    fun greeting(name: String): Greeting {
-        return Greeting("hello $name")
-    }
-}
 
 @Path("/")
 class ReactiveGreetingResource(
@@ -26,8 +19,7 @@ class ReactiveGreetingResource(
     fun hello(@PathParam("name") name: String): Uni<Greeting> {
         return Uni.createFrom().item(name)
             .emitOn(Infrastructure.getDefaultWorkerPool())
-            .onItem()
-            .transform { n -> service.greeting(n) }
+            .map { n -> service.greeting(n) }
     }
 
     @GET
@@ -36,8 +28,7 @@ class ReactiveGreetingResource(
     fun delayed(@PathParam("name") name: String): Uni<Greeting> {
         return Uni.createFrom().item(name)
             .emitOn(Infrastructure.getDefaultWorkerPool()) // shift blocking work off IO thread
-            .onItem()
-            .transform { n -> service.greeting(n) } // sync transform
+            .map { n -> service.greeting(n) } // sync transform
             .onItem()
             .delayIt()
             .by(Duration.ofSeconds(1)) // simulate delay
@@ -49,8 +40,7 @@ class ReactiveGreetingResource(
     fun delayedTimeout(@PathParam("name") name: String): Uni<Greeting> {
         return Uni.createFrom().item(name)
             .emitOn(Infrastructure.getDefaultWorkerPool()) // shift blocking work off IO thread
-            .onItem()
-            .transform { n -> service.greeting(n) } // sync transform
+            .map { n -> service.greeting(n) } // sync transform
             .onItem()
             .delayIt().by(Duration.ofSeconds(2))
             .ifNoItem().after(Duration.ofSeconds(1))

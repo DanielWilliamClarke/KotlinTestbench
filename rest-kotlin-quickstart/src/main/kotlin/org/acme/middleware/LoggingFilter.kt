@@ -1,13 +1,13 @@
 package org.acme.middleware
 
-import io.smallrye.config.Priorities
 import jakarta.annotation.Priority
+import jakarta.ws.rs.Priorities
 import jakarta.ws.rs.container.*
 import jakarta.ws.rs.ext.Provider
 import org.jboss.logging.Logger
 
 @Provider
-@Priority(Priorities.APPLICATION)
+@Priority(Priorities.USER)
 class LoggingFilter : ContainerRequestFilter, ContainerResponseFilter {
 
     private val log: Logger = Logger.getLogger(LoggingFilter::class.java)
